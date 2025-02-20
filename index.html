@@ -1,40 +1,40 @@
-const functions = require("firebase-functions");
-const { SessionsClient } = require("@google-cloud/dialogflow");
-const cors = require("cors")({ origin: true });
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot - CheckInEasy</title>
 
-const projectId = "YOUR_DIALOGFLOW_PROJECT_ID"; // Replace this
-const location = "YOUR_DIALOGFLOW_LOCATION"; // Example: "us-central1"
-const agentId = "YOUR_AGENT_ID"; // Replace this
+    <!-- Dialogflow Messenger -->
+    <link rel="stylesheet" href="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/themes/df-messenger-default.css">
+    <script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
+</head>
+<body>
+    <h2>Chat with our AI Healthcare Assistant</h2>
 
-const sessionClient = new SessionsClient({
-    keyFilename: "YOUR_JSON_KEY_PATH.json", // Replace with your JSON key
-});
+    <!-- Dialogflow Chatbot -->
+    <df-messenger
+        location="us-central1"
+        project-id="kioskproject-450804"
+        agent-id="b568cae8-827f-476d-bc15-64cd51c6da8e"
+        language-code="en"
+        max-query-length="-1">
+        <df-messenger-chat-bubble chat-title="CheckInEasy">
+        </df-messenger-chat-bubble>
+    </df-messenger>
 
-exports.dialogflowGateway = functions.https.onRequest(async (req, res) => {
-    cors(req, res, async () => {
-        try {
-            const sessionId = "12345"; // Unique session ID for the user
-            const sessionPath = sessionClient.projectLocationAgentSessionPath(
-                projectId, location, agentId, sessionId
-            );
-
-            const request = {
-                session: sessionPath,
-                queryInput: {
-                    text: {
-                        text: req.body.message,
-                        languageCode: "en",
-                    },
-                },
-            };
-
-            const responses = await sessionClient.detectIntent(request);
-            const result = responses[0].queryResult;
-
-            res.json({ reply: result.fulfillmentText });
-        } catch (error) {
-            console.error("Dialogflow request failed:", error);
-            res.status(500).send("Error connecting to Dialogflow");
+    <style>
+        df-messenger {
+            z-index: 999;
+            position: fixed;
+            --df-messenger-font-color: #000;
+            --df-messenger-font-family: Google Sans;
+            --df-messenger-chat-background: #f3f6fc;
+            --df-messenger-message-user-background: #d3e3fd;
+            --df-messenger-message-bot-background: #fff;
+            bottom: 16px;
+            right: 16px;
         }
-    });
-});
+    </style>
+</body>
+</html>
