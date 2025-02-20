@@ -1,0 +1,40 @@
+const functions = require("firebase-functions");
+const { SessionsClient } = require("@google-cloud/dialogflow");
+const cors = require("cors")({ origin: true });
+
+const projectId = "YOUR_DIALOGFLOW_PROJECT_ID"; // Replace this
+const location = "YOUR_DIALOGFLOW_LOCATION"; // Example: "us-central1"
+const agentId = "YOUR_AGENT_ID"; // Replace this
+
+const sessionClient = new SessionsClient({
+    keyFilename: "YOUR_JSON_KEY_PATH.json", // Replace with your JSON key
+});
+
+exports.dialogflowGateway = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        try {
+            const sessionId = "12345"; // Unique session ID for the user
+            const sessionPath = sessionClient.projectLocationAgentSessionPath(
+                projectId, location, agentId, sessionId
+            );
+
+            const request = {
+                session: sessionPath,
+                queryInput: {
+                    text: {
+                        text: req.body.message,
+                        languageCode: "en",
+                    },
+                },
+            };
+
+            const responses = await sessionClient.detectIntent(request);
+            const result = responses[0].queryResult;
+
+            res.json({ reply: result.fulfillmentText });
+        } catch (error) {
+            console.error("Dialogflow request failed:", error);
+            res.status(500).send("Error connecting to Dialogflow");
+        }
+    });
+});
